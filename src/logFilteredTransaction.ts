@@ -1,4 +1,4 @@
-import { TransactionReceipt,ethers } from "ethers";
+import { Provider, TransactionReceipt,ethers } from "ethers";
 import { DataHexString } from "ethers/lib.commonjs/utils/data";
 import checkAddress from "./checkAddress"
 
@@ -11,7 +11,7 @@ import checkAddress from "./checkAddress"
  * @param address intrested address for logging transaction
  */
 
-export default async function logFilteredTransaction(transactionHashes:readonly DataHexString[] | undefined,provider:ethers.JsonRpcProvider,address:string) {
+export default async function logFilteredTransaction(transactionHashes:readonly DataHexString[] | undefined,provider:Provider,address:string) {
     transactionHashes?.forEach(async(hash) => {
         try {
         const trxReceipt:TransactionReceipt|null=await provider.getTransactionReceipt(hash)

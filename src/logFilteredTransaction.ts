@@ -18,7 +18,7 @@ export default async function logFilteredTransaction(transactionHashes:readonly 
             if(checkAddress(trxReceipt,address)){
                 console.log(`''''''''''' Loggin Started '''''''''''`)
                 console.log(trxReceipt)
-                console.log(`''''''''''' Loggin Started '''''''''''\n`)
+                console.log(`''''''''''' Loggin Ended '''''''''''\n`)
             }
         } catch (error) {
             console.log("Unexpected Error Occured\n")

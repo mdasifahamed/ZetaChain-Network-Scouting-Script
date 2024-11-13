@@ -9,7 +9,7 @@ import { TransactionReceipt } from "ethers";
  * @returns true/false
  */
 export default function checkAddress(transactionReceipt:TransactionReceipt|null,address:string):boolean {
-    if(transactionReceipt?.status===1&&((transactionReceipt.from===address)||(transactionReceipt.to===address))){
+    if(transactionReceipt?.status===1&&((transactionReceipt?.from===address)||(transactionReceipt?.to===address))){
         return true;
     }else{
         return false;

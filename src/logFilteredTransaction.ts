@@ -12,6 +12,7 @@ import checkAddress from "./checkAddress"
  */
 
 export default async function logFilteredTransaction(transactionHashes:readonly DataHexString[] | undefined,provider:Provider,address:string) {
+    console.log(`Looking Transaction For ${address}`)
     transactionHashes?.forEach(async(hash) => {
         try {
         const trxReceipt:TransactionReceipt|null=await provider.getTransactionReceipt(hash)
@@ -24,8 +25,6 @@ export default async function logFilteredTransaction(transactionHashes:readonly 
             console.log("Unexpected Error Occured\n")
             console.log(error)
         }
-   
-    
     });
     
 }

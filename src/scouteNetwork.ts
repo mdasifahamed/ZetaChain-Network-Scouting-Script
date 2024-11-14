@@ -1,7 +1,9 @@
-import { ethers,Block,TransactionResponse,TransactionReceipt } from "ethers";
+import {Provider,Block } from 'ethers';
 import { DataHexString } from "ethers/lib.commonjs/utils/data";
+import getProvider from "./provider";
 import logFilteredTransaction from "./logFilteredTransaction";
-const provider = new ethers.JsonRpcProvider("https://zetachain-athens.g.allthatnode.com/archive/evm")
+import getTransactiList from './getTransactionList';
+
 
 /**
  * scouteNetwork()
@@ -12,20 +14,25 @@ const provider = new ethers.JsonRpcProvider("https://zetachain-athens.g.allthatn
  * @param address Interested Address For The Logging. 
  */
 
-async function scouteNetwork(address:string){
-    provider.on("block",async (blockNumber)=>{
-        try {
-            let block:Block|null = await provider.getBlock(blockNumber);
-            let transactions: readonly DataHexString[]|undefined = block?.transactions;
-            await logFilteredTransaction(transactions,provider,address)
-        } catch (error) {
-            console.log("An Unexpected Error Occured\n")
-            console.log(error)
-        }
-        
-    })
+export default async function scouteNetwork(address:string,provider_url:string){
+    const provider:Provider|undefined = await getProvider(provider_url)
+    let blockList:number[]=[]
+    if(provider){
+        provider.on("block",async (blockNumber)=>{
+            blockList.push(blockNumber)
+            let blockToLook = blockList.shift()
+            try {
+                let transactions: readonly DataHexString[]|undefined = await getTransactiList(blockToLook,provider);
+                await logFilteredTransaction(transactions,provider,address)
+            } catch (error) {
+                console.log("An Unexpected Error Occured\n")
+                console.log(error)
+            }
+        })
+    }
+   
 }
 
-scouteNetwork("Interested Address To Log")
+scouteNetwork("","")
 
 

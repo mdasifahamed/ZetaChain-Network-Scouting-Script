@@ -1,4 +1,4 @@
-import {Provider,Block } from 'ethers';
+import { Provider, Block } from 'ethers';
 import { DataHexString } from "ethers/lib.commonjs/utils/data";
 import getProvider from "./provider";
 import logFilteredTransaction from "./logFilteredTransaction";
@@ -6,10 +6,10 @@ import getTransactiList from './getTransactionList';
 import retry from './retry';
 
 async function wait3min() {
-    return new Promise((resolve)=>{
-        setTimeout(()=>{
-        resolve("")
-        },30000)
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("")
+        }, 30000)
     })
 }
 /**
@@ -22,7 +22,9 @@ async function wait3min() {
  */
 
 export default async function scouteNetwork(address: string, provider_url: string) {
-    const provider: Provider|undefined = await getProvider(provider_url);
+    const provider: Provider | undefined = await getProvider(provider_url);
+    const fakeBlockNumber: number = 1256987459852156
+    const fakeProvider: Provider | undefined = await getProvider("https://zetachain-athens.g.allthatnode.com/archive/")
     let blockList: number[] = [];
     let isProcessing = false;
 
@@ -33,15 +35,15 @@ export default async function scouteNetwork(address: string, provider_url: strin
             if (!isProcessing) {
                 isProcessing = true;
                 try {
-                        const blockToLook = blockList.shift();
-                        console.log('Processing block:', blockToLook);
-                        const transactions = await retry(()=>getTransactiList(blockToLook, provider),10,5);
-                        await retry(()=>logFilteredTransaction(transactions, provider, address),10,5);
-                        // console.log("waiting 20 seconds")
-                        // await wait3min();
-                        // console.log("Waited 20 Seconds")
-                        isProcessing = false;
-                    
+                    const blockToLook = blockList.shift();
+                    console.log('Processing block:', blockToLook);
+                    const transactions = await retry(() => getTransactiList(blockToLook, provider), 10, 5);
+                    await retry(() => logFilteredTransaction(transactions, fakeProvider, address), 10, 5);
+                    // console.log("waiting 20 seconds")
+                    // await wait3min();
+                    // console.log("Waited 20 Seconds")
+                    isProcessing = false;
+
                 } catch (error) {
                     console.log("An Unexpected Error Occurred\n");
                     console.log(error);
@@ -53,6 +55,6 @@ export default async function scouteNetwork(address: string, provider_url: strin
     }
 }
 
-scouteNetwork("","")
+scouteNetwork("", "")
 
 

@@ -3,8 +3,15 @@ import { DataHexString } from "ethers/lib.commonjs/utils/data";
 import getProvider from "./provider";
 import logFilteredTransaction from "./logFilteredTransaction";
 import getTransactiList from './getTransactionList';
+import retry from './retry';
 
-
+async function wait3min() {
+    return new Promise((resolve)=>{
+        setTimeout(()=>{
+        resolve("")
+        },30000)
+    })
+}
 /**
  * scouteNetwork()
  * It All Always Listens For The New Mined Bloked
@@ -14,23 +21,36 @@ import getTransactiList from './getTransactionList';
  * @param address Interested Address For The Logging. 
  */
 
-export default async function scouteNetwork(address:string,provider_url:string){
-    const provider:Provider|undefined = await getProvider(provider_url)
-    let blockList:number[]=[]
-    if(provider){
-        provider.on("block",async (blockNumber)=>{
-            blockList.push(blockNumber)
-            let blockToLook = blockList.shift()
-            try {
-                let transactions: readonly DataHexString[]|undefined = await getTransactiList(blockToLook,provider);
-                await logFilteredTransaction(transactions,provider,address)
-            } catch (error) {
-                console.log("An Unexpected Error Occured\n")
-                console.log(error)
+export default async function scouteNetwork(address: string, provider_url: string) {
+    const provider: Provider|undefined = await getProvider(provider_url);
+    let blockList: number[] = [];
+    let isProcessing = false;
+
+    if (provider) {
+        provider.on("block", async (blockNumber) => {
+            console.log('New block:', blockNumber);
+            blockList.push(blockNumber);
+            if (!isProcessing) {
+                isProcessing = true;
+                try {
+                        const blockToLook = blockList.shift();
+                        console.log('Processing block:', blockToLook);
+                        const transactions = await retry(()=>getTransactiList(blockToLook, provider),10,5);
+                        await retry(()=>logFilteredTransaction(transactions, provider, address),10,5);
+                        // console.log("waiting 20 seconds")
+                        // await wait3min();
+                        // console.log("Waited 20 Seconds")
+                        isProcessing = false;
+                    
+                } catch (error) {
+                    console.log("An Unexpected Error Occurred\n");
+                    console.log(error);
+                }
+            } else {
+                console.log('Already processing a block, queuing block:', blockNumber);
             }
-        })
+        });
     }
-   
 }
 
 scouteNetwork("","")

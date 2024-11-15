@@ -1,4 +1,4 @@
-import { Provider, TransactionReceipt,ethers } from "ethers";
+import { Provider, TransactionReceipt, ethers } from "ethers";
 import { DataHexString } from "ethers/lib.commonjs/utils/data";
 import checkAddress from "./checkAddress"
 
@@ -11,12 +11,20 @@ import checkAddress from "./checkAddress"
  * @param address intrested address for logging transaction
  */
 
-export default async function logFilteredTransaction(transactionHashes:readonly DataHexString[] | undefined,provider:Provider,address:string) {
+export default async function logFilteredTransaction(
+    transactionHashes: readonly DataHexString[] | undefined,
+    provider: Provider | undefined,
+    address: string) {
     console.log(`Looking Transaction For ${address}`)
-    transactionHashes?.forEach(async(hash) => {
+    if (!provider || !transactionHashes) {
+        console.log("Unknown Proivder Or Undefined Transaction List")
+        throw new Error("Unknown Proivder Or Undefined Transaction List");
+
+    }
+    transactionHashes.forEach(async (hash) => {
         try {
-        const trxReceipt:TransactionReceipt|null=await provider.getTransactionReceipt(hash)
-            if(checkAddress(trxReceipt,address)){
+            const trxReceipt: TransactionReceipt | null = await provider.getTransactionReceipt(hash)
+            if (checkAddress(trxReceipt, address)) {
                 console.log(`''''''''''' Logging Started '''''''''''`)
                 console.log(trxReceipt)
                 console.log(`''''''''''' Logging Ended '''''''''''\n`)
@@ -24,7 +32,8 @@ export default async function logFilteredTransaction(transactionHashes:readonly 
         } catch (error) {
             console.log("Unexpected Error Occured\n")
             console.log(error)
+            throw error
         }
     });
-    
+
 }
